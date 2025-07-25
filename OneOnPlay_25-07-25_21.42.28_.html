@@ -1,0 +1,874 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>第一聚合 | OneOnPlay</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-bg: linear-gradient(to bottom, #1a6c9c, #1f9b1f);
+            --card-bg: rgba(255, 255, 255, 0.1);
+            --text-color: #ffffff;
+            --text-secondary: #cccccc;
+            --header-bg: rgba(0, 0, 0, 0.7);
+            --card-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            --title-gradient: linear-gradient(45deg, #7e22ce, #000000);
+            --font-size-base: 16px;
+            --font-size-large: 1.25rem;
+            --header-height: 70px;
+        }
+        
+        [data-theme="light"] {
+            --primary-bg: linear-gradient(to bottom, #a1c4fd, #c2e9fb);
+            --card-bg: rgba(255, 255, 255, 0.85);
+            --text-color: #333333;
+            --text-secondary: #666666;
+            --header-bg: rgba(255, 255, 255, 0.9);
+            --card-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            --title-gradient: linear-gradient(45deg, #7e22ce, #3b0764);
+        }
+        
+        [data-accessibility="senior"] {
+            --primary-bg: #ffffff;
+            --card-bg: #f0f0f0;
+            --text-color: #000000;
+            --text-secondary: #333333;
+            --header-bg: #e0e0e0;
+            --card-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            --title-gradient: linear-gradient(45deg, #ff0000, #0000ff);
+            --font-size-base: 20px;
+            --font-size-large: 1.5rem;
+        }
+        
+        [data-accessibility="senior"][data-theme="dark"] {
+            --primary-bg: #000000;
+            --card-bg: #222222;
+            --text-color: #ffffff;
+            --text-secondary: #dddddd;
+            --header-bg: #333333;
+            --title-gradient: linear-gradient(45deg, #ff9900, #ffff00);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            transition: background 0.5s ease, color 0.5s ease, transform 0.5s ease;
+            font-size: var(--font-size-base);
+        }
+        
+        body {
+            background: var(--primary-bg);
+            color: var(--text-color);
+            min-height: 100vh;
+            position: relative;
+            padding-top: var(--header-height);
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            padding-bottom: 80px;
+        }
+        
+        header {
+            background: var(--header-bg);
+            backdrop-filter: blur(10px);
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: var(--header-height);
+            z-index: 100;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+        }
+        
+        .header-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        .logo-container {
+            text-align: center;
+        }
+        
+        .main-logo {
+            font-size: 28px;
+            font-weight: 700;
+            background: linear-gradient(45deg, #00c9ff, #92fe9d);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            letter-spacing: 1px;
+        }
+        
+        .sub-logo {
+            font-size: 12px;
+            color: #92fe9d;
+            margin-top: -5px;
+            letter-spacing: 3px;
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 30px;
+        }
+        
+        .nav-links a {
+            color: var(--text-color);
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            padding: 8px 15px;
+            border-radius: 30px;
+            font-size: var(--font-size-large);
+        }
+        
+        .nav-links a:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+        
+        .theme-controls {
+            display: flex;
+            gap: 15px;
+            position: absolute;
+            top: 50%;
+            right: 20px;
+            transform: translateY(-50%);
+            z-index: 101;
+        }
+        
+        .theme-btn {
+            background: rgba(255, 255, 255, 0.3);
+            border: none;
+            color: var(--text-color);
+            font-size: 1.4rem;
+            cursor: pointer;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            position: relative;
+        }
+        
+        .theme-btn:hover {
+            background: rgba(255, 255, 255, 0.5);
+            transform: translateY(-3px);
+        }
+        
+        .theme-btn .tooltip {
+            position: absolute;
+            top: 60px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            white-space: nowrap;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+            z-index: 110;
+            min-width: 100px;
+            text-align: center;
+        }
+        
+        .theme-btn:hover .tooltip {
+            opacity: 1;
+        }
+        
+        /* 确保提示框在窗口内 */
+        @media (min-width: 992px) {
+            .theme-btn:last-child .tooltip {
+                left: auto;
+                right: 0;
+                transform: translateX(0);
+            }
+            
+            .theme-btn:last-child .tooltip::before {
+                left: auto;
+                right: 15px;
+            }
+        }
+        
+        .hero {
+            text-align: center;
+            padding: 100px 0 50px;
+        }
+        
+        .hero h1 {
+            font-size: 3.5rem;
+            margin-bottom: 20px;
+            background: var(--title-gradient);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            background-size: 200% 200%;
+        }
+        
+        .hero p {
+            font-size: 1.3rem;
+            max-width: 700px;
+            margin: 0 auto 30px;
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+        
+        .button-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            max-width: 800px;
+            margin: 40px auto;
+        }
+        
+        .action-btn {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 15px;
+            padding: 25px 20px;
+            text-decoration: none;
+            color: var(--text-color);
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            height: 150px;
+        }
+        
+        .action-btn:hover {
+            background: rgba(255, 255, 255, 0.25);
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+        }
+        
+        .action-btn i {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+            color: #92fe9d;
+        }
+        
+        .action-btn .btn-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+            text-align: center;
+        }
+        
+        .action-btn .btn-subtitle {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            text-align: center;
+        }
+        
+        .section-title {
+            text-align: center;
+            font-size: 2.5rem;
+            margin: 60px 0 40px;
+            position: relative;
+            background: var(--title-gradient);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            background-size: 200% 200%;
+        }
+        
+        .section-title::after {
+            content: "";
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 4px;
+            background: linear-gradient(to right, #00c9ff, #92fe9d);
+            border-radius: 2px;
+        }
+        
+        .instructions {
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 15px;
+            padding: 25px;
+            margin: 30px auto;
+            max-width: 900px;
+        }
+        
+        .instructions h3 {
+            color: #00c9ff;
+            margin-bottom: 15px;
+            font-size: 1.5rem;
+        }
+        
+        .instructions ol {
+            padding-left: 25px;
+        }
+        
+        .instructions li {
+            margin-bottom: 15px;
+            line-height: 1.6;
+            color: var(--text-secondary);
+            font-size: var(--font-size-large);
+        }
+        
+        .instructions code {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-family: monospace;
+        }
+        
+        .content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-top: 40px;
+        }
+        
+        .card {
+            background: var(--card-bg);
+            border-radius: 15px;
+            overflow: hidden;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            box-shadow: var(--card-shadow);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            text-decoration: none;
+            color: var(--text-color);
+            display: block;
+        }
+        
+        .card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+        }
+        
+        .card-img {
+            height: 200px;
+            background-size: cover;
+            background-position: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: rgba(0, 0, 0, 0.2);
+        }
+        
+        .card-img-placeholder {
+            font-size: 1.5rem;
+            color: rgba(255, 255, 255, 0.7);
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .card-content {
+            padding: 25px;
+        }
+        
+        .card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+            color: #92fe9d;
+        }
+        
+        .card p {
+            color: var(--text-secondary);
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+        
+        footer {
+            text-align: center;
+            margin-top: 80px;
+            padding: 30px;
+            color: var(--text-secondary);
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            position: relative;
+            z-index: 10;
+        }
+        
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+            }
+            
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+            
+            .hero p {
+                font-size: 1.1rem;
+            }
+            
+            .content {
+                grid-template-columns: 1fr;
+            }
+            
+            .button-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .theme-controls {
+                right: 10px;
+            }
+            
+            .theme-btn .tooltip {
+                font-size: 0.8rem;
+                padding: 4px 8px;
+            }
+        }
+        
+        /* 天气按钮样式 */
+        .weather-btn {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            color: white;
+            cursor: pointer;
+            z-index: 99;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            transition: all 0.5s ease;
+            transform: translateY(100px);
+            opacity: 0;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            overflow: hidden;
+        }
+        
+        .weather-btn.visible {
+            transform: translateY(0);
+            opacity: 1;
+        }
+        
+        .weather-btn .shape {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, #3498db, #2ecc71);
+            transition: all 5s ease;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .weather-btn .tooltip {
+            position: absolute;
+            top: -40px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            white-space: nowrap;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+            z-index: 100;
+        }
+        
+        .weather-btn:hover .tooltip {
+            opacity: 1;
+        }
+        
+        /* 天气渐变样式 */
+        .sunny-bg {
+            background: linear-gradient(45deg, #87CEEB, #FFFF00);
+        }
+        
+        .cloudy-bg {
+            background: linear-gradient(45deg, #B0C4DE, #696969);
+        }
+        
+        .rainy-bg {
+            background: linear-gradient(45deg, #4682B4, #1E90FF);
+        }
+        
+        .stormy-bg {
+            background: linear-gradient(45deg, #2F4F4F, #000000);
+        }
+        
+        .snowy-bg {
+            background: linear-gradient(45deg, #E0FFFF, #F0F8FF);
+        }
+        
+        /* 老年模式下的高对比度 */
+        [data-accessibility="senior"] .card,
+        [data-accessibility="senior"] .action-btn,
+        [data-accessibility="senior"] .instructions {
+            border: 3px solid #000000;
+        }
+        
+        [data-accessibility="senior"] .nav-links a,
+        [data-accessibility="senior"] .card h3 {
+            font-weight: 700;
+            text-decoration: underline;
+        }
+        
+        [data-accessibility="senior"] .card-img-placeholder {
+            font-weight: bold;
+            font-size: 2rem;
+            color: #0000ff;
+            background: #ffff00;
+        }
+        
+        [data-accessibility="senior"][data-theme="dark"] .card-img-placeholder {
+            color: #ffff00;
+            background: #0000ff;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-container">
+            <div class="logo-container">
+                <div class="main-logo">第一聚合</div>
+                <div class="sub-logo">OneOnPlay</div>
+            </div>
+            <div class="nav-links">
+                <a href="#home">超链接01</a>
+                <a href="#about">超链接02</a>
+                <a href="#projects">超链接03</a>
+                <a href="#contact">超链接04</a>
+            </div>
+            <div class="theme-controls">
+                <button class="theme-btn" id="seniorModeToggle">
+                    <i class="fas fa-glasses"></i>
+                    <div class="tooltip">老年模式</div>
+                </button>
+                <button class="theme-btn" id="themeToggle">
+                    <i class="fas fa-moon"></i>
+                    <div class="tooltip">亮/暗色模式</div>
+                </button>
+            </div>
+        </div>
+    </header>
+    
+    <section class="hero" id="home">
+        <div class="container">
+            <h1>文章指引</h1>
+            <p>目前可以被指引到的文章有《如何唤醒谷歌注意：》、《如何使用小白调试助手：》两篇文章与各无障碍帮助网站  
+            若点击下方按钮 将直接跳转到对应网站的《如何唤醒谷歌助理：》  </p>
+            
+            <div class="button-grid">
+                <a href="https://share.weiyun.com/vO6KfxUw" class="action-btn">
+                    <i class="fas fa-file-alt"></i>
+                    <div class="btn-title">在腾讯微云文档查看</div>
+                    <div class="btn-subtitle">▼</div>
+                </a>
+                
+                <a href="https://www.dropbox.com/scl/fo/ejtml8jbpv6wx6b9g1nd2/AI_xOkNG6bflzOl0RqxkScw?rlkey=eoxj5x8mdu7p1w2mp8q11faa7&st=ga3nkm1n&dl=0" class="action-btn">
+                    <i class="fab fa-dropbox"></i>
+                    <div class="btn-title">在Dropbox云盘查看</div>
+                    <div class="btn-subtitle">▼</div>
+                </a>
+                
+                <a href="https://1drv.ms/f/c/a44695ea4224aa39/Ep1d_wHoXhtOjRvucLR-DKcBSAtYGDTLWbH10Y9SKduRpA?e=DR3yhx" class="action-btn">
+                    <i class="fas fa-archive"></i>
+                    <div class="btn-title">在微软第一云盘查看</div>
+                    <div class="btn-subtitle">(归档版本) 
+                    <br>▼</div>
+                </a>
+                
+                <a href="https://t.me/OneOnPlayPD" class="action-btn">
+                    <i class="fab fa-telegram"></i>
+                    <div class="btn-title">在电报查看</div>
+                    <div class="btn-subtitle">(更新报告) 
+                    <br>▼</div>
+                </a>
+            </div>
+        </div>
+    </section>
+    
+    <div class="container">
+        <h2 class="section-title">更多内容</h2>
+        
+        <div class="content">
+            <!-- 卡片1 -->
+            <a href="https://1drv.ms/f/c/a44695ea4224aa39/Ehet8PffxwtOoFPoCq1qNa8BnqAVaUck_CNUuKbCogxDpQ" class="card">
+                <div class="card-img">
+                    <div class="card-img-placeholder">1drv.ms</div>
+                </div>
+                <div class="card-content">
+                    <h3>《如何使用小白调试助手：》</h3>
+                    <p>仅支持查看微软第一云盘
+                    归档版本(2025年7月、114年7月)  </p>
+                </div>
+            </a>
+            
+            <!-- 卡片2 -->
+            <a href="https://remobax.top/compatibility_guide/" class="card">
+                <div class="card-img">
+                    <div class="card-img-placeholder">remchax.top</div>
+                </div>
+                <div class="card-content">
+                    <h3>应用兼容性指南</h3>
+                    <p>陆版设备对安卓系统有不同程度优化或魔改，为使得应用能够后台长期稳定运行，需要对应用或设备做出必要的设置以便后台保活  </p>
+                </div>
+            </a>
+            
+            <!-- 卡片3 -->
+            <a href="https://www.mihoyo.com/m" class="card">
+                <div class="card-img">
+                    <div class="card-img-placeholder">mihoyo⁰³</div>
+                </div>
+                <div class="card-content">
+                    <h3>米哈游⁰³</h3>
+                    <p>丘丘人⁰³</p>
+                </div>
+            </a>
+        </div>
+        
+        <h2 class="section-title">♩⁰</h2>
+        <div class="instructions">
+            <h3>♩⁰⁰</h3>
+            <ol>
+                <li><strong>♪¹</strong>：♫¹</li>
+                <li><strong>♪²</strong>：♫²</li>
+                <li><strong>♪³</strong>：♫³</li>
+                <li><strong>♪⁴</strong>：♫⁴</li>
+                <li><strong>♪⁵</strong>：♫⁵</li>
+            </ol>
+        </div>
+    </div>
+    
+    <footer>
+        <div class="container">
+            <p>第一聚合</p>
+            <p>OneOnPlay</p>
+        </div>
+    </footer>
+    
+    <!-- 天气按钮 -->
+    <div class="weather-btn" id="weatherBtn">
+        <div class="shape" id="weatherShape">
+            <i class="fas fa-cloud"></i>
+        </div>
+        <div class="tooltip">当地天气</div>
+    </div>
+    
+    <script>
+        // 主题切换功能
+        const themeToggle = document.getElementById('themeToggle');
+        const themeIcon = themeToggle.querySelector('i');
+        const seniorModeToggle = document.getElementById('seniorModeToggle');
+        const seniorIcon = seniorModeToggle.querySelector('i');
+        const body = document.body;
+        
+        // 检查本地存储中的主题偏好
+        const savedTheme = localStorage.getItem('theme');
+        const savedSeniorMode = localStorage.getItem('seniorMode');
+        
+        if (savedTheme) {
+            body.setAttribute('data-theme', savedTheme);
+            updateThemeIcon(savedTheme);
+        }
+        
+        if (savedSeniorMode) {
+            body.setAttribute('data-accessibility', savedSeniorMode);
+            updateSeniorIcon(savedSeniorMode);
+        }
+        
+        themeToggle.addEventListener('click', () => {
+            body.classList.add('theme-transition');
+            
+            const currentTheme = body.getAttribute('data-theme') || 'dark';
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            
+            body.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            updateThemeIcon(newTheme);
+            
+            setTimeout(() => {
+                body.classList.remove('theme-transition');
+            }, 800);
+        });
+        
+        seniorModeToggle.addEventListener('click', () => {
+            body.classList.add('theme-transition');
+            
+            const currentMode = body.getAttribute('data-accessibility') || 'normal';
+            const newMode = currentMode === 'normal' ? 'senior' : 'normal';
+            
+            body.setAttribute('data-accessibility', newMode);
+            localStorage.setItem('seniorMode', newMode);
+            updateSeniorIcon(newMode);
+            
+            setTimeout(() => {
+                body.classList.remove('theme-transition');
+            }, 800);
+        });
+        
+        function updateThemeIcon(theme) {
+            if (theme === 'light') {
+                themeIcon.classList.remove('fa-moon');
+                themeIcon.classList.add('fa-sun');
+            } else {
+                themeIcon.classList.remove('fa-sun');
+                themeIcon.classList.add('fa-moon');
+            }
+        }
+        
+        function updateSeniorIcon(mode) {
+            if (mode === 'senior') {
+                seniorIcon.classList.remove('fa-glasses');
+                seniorIcon.classList.add('fa-user');
+            } else {
+                seniorIcon.classList.remove('fa-user');
+                seniorIcon.classList.add('fa-glasses');
+            }
+        }
+        
+        // 天气按钮功能
+        const weatherBtn = document.getElementById('weatherBtn');
+        const weatherShape = document.getElementById('weatherShape');
+        let currentWeather = 'cloudy';
+        const weatherConditions = ['sunny', 'cloudy', 'rainy', 'snowy', 'stormy'];
+        const weatherIcons = {
+            sunny: 'fa-sun',
+            cloudy: 'fa-cloud',
+            rainy: 'fa-cloud-rain',
+            snowy: 'fa-snowflake',
+            stormy: 'fa-bolt'
+        };
+        const weatherColors = {
+            sunny: 'linear-gradient(45deg, #87CEEB, #FFFF00)',
+            cloudy: 'linear-gradient(45deg, #B0C4DE, #696969)',
+            rainy: 'linear-gradient(45deg, #4682B4, #1E90FF)',
+            snowy: 'linear-gradient(45deg, #E0FFFF, #F0F8FF)',
+            stormy: 'linear-gradient(45deg, #2F4F4F, #000000)'
+        };
+        
+        // 获取用户IP和天气信息
+        async function getWeatherInfo() {
+            try {
+                // 获取IP地址
+                const ipResponse = await fetch('https://api.ipify.org?format=json');
+                const ipData = await ipResponse.json();
+                const ipAddress = ipData.ip;
+                
+                // 使用IP获取位置信息
+                const locationResponse = await fetch(`https://ipapi.co/${ipAddress}/json/`);
+                const locationData = await locationResponse.json();
+                
+                // 模拟根据位置获取天气（实际应用应使用天气API）
+                const randomWeather = weatherConditions[Math.floor(Math.random() * weatherConditions.length)];
+                return {
+                    weather: randomWeather,
+                    location: locationData.city || "检查天气"
+                };
+            } catch (error) {
+                console.error("获取天气信息失败:", error);
+                return {
+                    weather: 'sunny',
+                    location: "天气"
+                };
+            }
+        }
+        
+        // 更新天气按钮
+        function updateWeatherButton(weather, location) {
+            // 更新天气图标
+            const iconClass = weatherIcons[weather];
+            weatherShape.innerHTML = `<i class="fas ${iconClass}"></i>`;
+            
+            // 更新背景颜色
+            weatherShape.style.background = weatherColors[weather];
+            
+            // 更新提示文本
+            weatherBtn.querySelector('.tooltip').textContent = `${location}天气`;
+            
+            // 设置按钮标题（用于长按提示）
+            weatherBtn.setAttribute('data-location', location);
+        }
+        
+        // 每5秒更换渐变颜色
+        setInterval(() => {
+            // 创建新的渐变
+            const weather = weatherConditions[Math.floor(Math.random() * weatherConditions.length)];
+            weatherShape.style.background = weatherColors[weather];
+        }, 5000);
+        
+        // 点击事件 - 跳转到谷歌天气
+        weatherBtn.addEventListener('click', () => {
+            const location = weatherBtn.getAttribute('data-location') || "local";
+            window.open(`https://www.google.com/search?q=${location}+weather`, '_blank');
+        });
+        
+        // 长按事件处理
+        let pressTimer;
+        weatherBtn.addEventListener('mousedown', () => {
+            pressTimer = window.setTimeout(() => {
+                // 长按处理
+                const tooltip = weatherBtn.querySelector('.tooltip');
+                tooltip.style.opacity = '1';
+                setTimeout(() => {
+                    tooltip.style.opacity = '0';
+                }, 2000);
+            }, 500);
+        });
+        
+        weatherBtn.addEventListener('mouseup', () => {
+            clearTimeout(pressTimer);
+        });
+        
+        weatherBtn.addEventListener('mouseleave', () => {
+            clearTimeout(pressTimer);
+        });
+        
+        // 检测滚动到底部显示按钮
+        function checkScroll() {
+            const scrollPosition = window.scrollY || window.pageYOffset;
+            const windowHeight = window.innerHeight;
+            const bodyHeight = document.body.offsetHeight;
+            
+            // 当滚动到底部时显示按钮
+            if (bodyHeight - (scrollPosition + windowHeight) < 100) {
+                weatherBtn.classList.add('visible');
+            } else {
+                weatherBtn.classList.remove('visible');
+            }
+        }
+        
+        // 初始化
+        document.addEventListener('DOMContentLoaded', async () => {
+            // 获取并显示天气信息
+            const weatherInfo = await getWeatherInfo();
+            updateWeatherButton(weatherInfo.weather, weatherInfo.location);
+            
+            // 设置滚动检测
+            window.addEventListener('scroll', checkScroll);
+            checkScroll();
+            
+            // 设置默认主题图标
+            const currentTheme = body.getAttribute('data-theme') || 'dark';
+            updateThemeIcon(currentTheme);
+            
+            const currentMode = body.getAttribute('data-accessibility') || 'normal';
+            updateSeniorIcon(currentMode);
+        });
+    </script>
+</body>
+</html>
