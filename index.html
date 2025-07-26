@@ -1222,6 +1222,29 @@
             
             audioPlayer.addEventListener('ended', playNextTrack);
             audioPlayer.addEventListener('timeupdate', updateProgress);
+
+            // --- 在这里添加 Media Session API 的事件处理 ---
+            if ('mediaSession' in navigator) {
+                navigator.mediaSession.setActionHandler('play', () => {
+                    if (audioPlayer.paused) {
+                        togglePlayPause();
+                    }
+                });
+                
+                navigator.mediaSession.setActionHandler('pause', () => {
+                    if (!audioPlayer.paused) {
+                        togglePlayPause();
+                    }
+                });
+                
+                navigator.mediaSession.setActionHandler('previoustrack', () => {
+                    playPrevTrack();
+                });
+                
+                navigator.mediaSession.setActionHandler('nexttrack', () => {
+                    playNextTrack();
+                });
+            }
         }
         
         // 更新进度条
@@ -1248,6 +1271,25 @@
                 albumCover.style.backgroundImage = `url('${coverSrc}')`;
             } else { 
                 albumCover.style.backgroundImage = `url('https://picsum.photos/200/200?random=${index}')`;
+            }
+
+            // --- 更新 Media Session API 元数据 ---
+            if ('mediaSession' in navigator) {
+                const trackTitle = trackItem.textContent;
+
+                navigator.mediaSession.metadata = new MediaMetadata({
+                    title: trackTitle,
+                    artist: 'OneOnPlay', 
+                    album: '第一聚合', 
+                    artwork: [
+                        { src: coverSrc, sizes: '96x96', type: 'image/jpeg' },
+                        { src: coverSrc, sizes: '128x128', type: 'image/jpeg' },
+                        { src: coverSrc, sizes: '192x192', type: 'image/jpeg' },
+                        { src: coverSrc, sizes: '256x256', type: 'image/jpeg' },
+                        { src: coverSrc, sizes: '384x384', type: 'image/jpeg' },
+                        { src: coverSrc, sizes: '512x512', type: 'image/jpeg' }
+                    ]
+                });
             }
         }
         
