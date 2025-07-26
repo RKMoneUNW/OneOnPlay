@@ -5,14 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>第一聚合 | OneOnPlay</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="icon" type="image/png" href="favicon.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
-    <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
-    <link rel="icon" type="image/png" sizes="192x192" href="android-chrome-192x192.png">
-    <link rel="shortcut icon" href="favicon.ico">
- 
-    
     <style>
         :root {
             --primary-bg: linear-gradient(to bottom, #1a6c9c, #1f9b1f);
@@ -588,7 +580,7 @@
             background: #0000ff;
         }
         
-        /* 音乐播放器按钮样式 */
+        /* 音乐播放器按钮样式 - 修复定位问题 */
         .music-player-btn {
             position: fixed;
             left: 0;
@@ -635,16 +627,21 @@
             width: 50px;
             height: 50px;
             border-radius: 50%;
-            background-image: url('https://images.unsplash.com/photo-1470225620780-dba8ba36b745?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=500&q=80');
+            background-image: url('https://raw.githubusercontent.com/rkmoneunw/OneOnPlay/Eo8Z1j/MMFGR_F.jpg');
             background-size: cover;
             background-position: center;
             z-index: 1;
             opacity: 0;
-            transition: opacity 0.5s ease;
+            transition: opacity 0.5s ease, transform 1s ease-out;
+            transform: rotate(0deg);
         }
         
         .music-player-btn.expanded .album-cover {
             opacity: 1;
+        }
+        
+        /* 播放时旋转 */
+        .music-player-btn.expanded .album-cover.playing {
             animation: spin 8s linear infinite;
         }
         
@@ -694,21 +691,20 @@
             100% { transform: rotate(360deg); }
         }
         
-        /* 滑动区域 - 大幅增大 */
+        /* 滑动区域 */
         .music-slide-area {
             position: fixed;
             left: 0;
             top: 50%;
             transform: translateY(-50%);
-            width: 120px; /* 增大宽度 */
-            height: 180px; /* 增大高度 */
+            width: 120px;
+            height: 180px;
             z-index: 98;
             opacity: 0.1;
             cursor: pointer;
-            background: rgba(0, 255, 0, 0.1); /* 调试用，实际可移除 */
         }
         
-        /* 音乐播放器面板 - 缩小尺寸 */
+        /* 音乐播放器面板 */
         .music-player-panel {
             position: fixed;
             left: 100px; 
@@ -717,8 +713,8 @@
             background: var(--music-panel-bg);
             backdrop-filter: blur(10px);
             border-radius: 15px;
-            padding: 15px; /* 减小内边距 */
-            width: 260px; /* 缩小宽度 */
+            padding: 15px;
+            width: 260px;
             z-index: 98;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
             opacity: 0;
@@ -737,24 +733,24 @@
             margin-bottom: 12px;
             color: #92fe9d;
             text-align: center;
-            font-size: 1.3rem; /* 减小字体 */
+            font-size: 1.3rem;
         }
         
         .player-controls {
             display: flex;
             justify-content: center;
-            gap: 15px; /* 减小间距 */
-            margin: 15px 0; /* 减小外边距 */
+            gap: 15px;
+            margin: 15px 0;
         }
         
         .player-controls button {
-            width: 50px; /* 减小按钮尺寸 */
-            height: 50px; /* 减小按钮尺寸 */
+            width: 50px;
+            height: 50px;
             border-radius: 50%;
             background: var(--control-btn-bg);
             border: none;
             color: var(--control-btn-color);
-            font-size: 1.2rem; /* 减小图标 */
+            font-size: 1.2rem;
             cursor: pointer;
             display: flex;
             align-items: center;
@@ -770,22 +766,22 @@
         
         .progress-slider {
             width: 100%;
-            margin: 15px 0; /* 减小外边距 */
+            margin: 15px 0;
         }
         
         .track-list {
-            max-height: 160px; /* 减小高度 */
+            max-height: 160px;
             overflow-y: auto;
-            margin-top: 10px; /* 减小外边距 */
+            margin-top: 10px;
         }
         
         .track-item {
-            padding: 10px 12px; /* 减小内边距 */
+            padding: 10px 12px;
             border-radius: 5px;
-            margin-bottom: 6px; /* 减小外边距 */
+            margin-bottom: 6px;
             cursor: pointer;
             transition: background 0.3s ease;
-            font-size: var(--font-size-base); /* 使用基础字体大小 */
+            font-size: var(--font-size-base);
         }
         
         .track-item:hover {
@@ -822,20 +818,44 @@
             transform: translate(-50%, -50%);
             background: rgba(0, 0, 0, 0.85);
             color: white;
-            padding: 12px 24px; /* 减小尺寸 */
+            padding: 12px 24px;
             border-radius: 25px;
-            font-size: 1.1rem; /* 减小字体 */
+            font-size: 1.1rem;
             z-index: 200;
             opacity: 0;
             pointer-events: none;
             transition: opacity 0.3s ease;
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
-            min-width: 200px; /* 减小宽度 */
+            min-width: 200px;
             text-align: center;
         }
         
         .long-press-tooltip.visible {
             opacity: 1;
+        }
+        
+        /* 修复：将音乐图标移动到封面左下角 */
+        .music-player-btn.expanded .player-icon {
+            position: absolute;
+            bottom: 5px;
+            left: 5px;
+            width: 28px;
+            height: 28px;
+            font-size: 16px;
+            background: rgba(0, 0, 0, 0.6);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 3;
+            transform: scale(1) !important;
+            box-shadow: 0 0 8px rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        
+        /* 旋转时图标位置保持不变 */
+        .music-player-btn.expanded .album-cover.playing + .player-icon {
+            transform: none !important;
         }
     </style>
 </head>
@@ -847,7 +867,7 @@
     <div class="music-player-btn" id="musicPlayerBtn">
         <div class="album-cover"></div>
         <div class="player-icon">
-            <i class="fas fa-music"></i>
+            <i class="fa-solid fa-music"></i>
         </div>
         <div class="tooltip">播放音乐</div>
         <div class="collapsed-indicator"></div>
@@ -862,10 +882,10 @@
         </div>
         <input type="range" min="0" max="100" value="80" class="progress-slider" id="progressSlider">
         <div class="track-list">
-            <div class="track-item active" data-src="https://raw.githubusercontent.com/rkmoneunw/OneOnPlay/Eo8Z1j/MMFGR_Y.mp3" data-cover="https://raw.githubusercontent.com/rkmoneunw/OneOnPlay/Eo8Z1j/MMFGR_F.jpg">美梦抚归人</div>
-            <div class="track-item" data-src="https://raw.githubusercontent.com/OneOnPlay/oneonplay/Eo8Z1j/PMCQX_Y.mp3" data-cover="https://raw.githubusercontent.com/rkmoneunw/OneOnPlay/Eo8Z1j/PMCQX_F.jpg">品茗尝清心</div>
+            <div class="track-item active" data-src="https://raw.githubusercontent.com/rkmoneunw/OneOnPlay/Eo8Z1j/XDXW_Y.mp3" data-cover="https://raw.githubusercontent.com/rkmoneunw/OneOnPlay/Eo8Z1j/XDXW_F.jpg">新的希望</div>
+            <div class="track-item" data-src="https://raw.githubusercontent.com/OneOnPlay/oneonplay/Eo8Z1j/XWDXYT_Y.mp3" data-cover="https://raw.githubusercontent.com/rkmoneunw/OneOnPlay/Eo8Z1j/XWDXYT_F.jpg">希望的新一天</div>
             <div class="track-item" data-src="https://raw.githubusercontent.com/rkmoneunw/OneOnPlay/Eo8Z1j/FZYCLMZ_Y.mp3" data-cover="https://raw.githubusercontent.com/rkmoneunw/OneOnPlay/Eo8Z1j/FZYCLMZ_F.png">风中易尘落茗中</div>
-            <div class="track-item" data-src="https://raw.githubusercontent.com/rkmoneunw/OneOnPlay/Eo8Z1j/YZYL_Y.mp3" data-cover="https://raw.githubusercontent.com/rkmoneunw/OneOnPlay/Eo8Z1j/YZYL_F.jpg">盐渍月亮</div>
+            <div class="track-item" data-src="https://raw.githubusercontent.com/rkmoneunw/OneOnPlay/Eo8Z1j/YZYL_Y.flac" data-cover="https://raw.githubusercontent.com/rkmoneunw/OneOnPlay/Eo8Z1j/YZYL_F.jpg">盐渍月亮</div>
         </div>
     </div>
     
@@ -1189,6 +1209,7 @@
         const nextBtn = document.getElementById('nextBtn');
         const progressSlider = document.getElementById('progressSlider');
         const trackItems = document.querySelectorAll('.track-item');
+        const albumCover = document.querySelector('.album-cover');
         
         let currentTrackIndex = 0;
         let isPlaying = false;
@@ -1222,6 +1243,14 @@
             
             audioPlayer.addEventListener('ended', playNextTrack);
             audioPlayer.addEventListener('timeupdate', updateProgress);
+            audioPlayer.addEventListener('play', () => {
+                if (musicPlayerBtn.classList.contains('expanded')) {
+                    albumCover.classList.add('playing');
+                }
+            });
+            audioPlayer.addEventListener('pause', () => {
+                albumCover.classList.remove('playing');
+            });
 
             // --- 在这里添加 Media Session API 的事件处理 ---
             if ('mediaSession' in navigator) {
@@ -1266,7 +1295,7 @@
             trackItems.forEach(item => item.classList.remove('active'));
             trackItem.classList.add('active');
             
-            const albumCover = document.querySelector('.album-cover');
+            
             if (coverSrc) { 
                 albumCover.style.backgroundImage = `url('${coverSrc}')`;
             } else { 
@@ -1332,6 +1361,11 @@
             
             musicPlayerBtn.classList.add('expanded');
             musicPlayerPanel.classList.add('visible');
+
+            // 如果正在播放，展开时才添加旋转动画
+            if (isPlaying) {
+                albumCover.classList.add('playing');
+            }
         }
         
         // 滑动区域事件 - 大幅改进滑动唤出功能
@@ -1361,6 +1395,7 @@
             if (musicPlayerBtn.classList.contains('expanded')) {
                 musicPlayerBtn.classList.remove('expanded');
                 musicPlayerPanel.classList.remove('visible');
+                albumCover.classList.remove('playing');
             } else {
                 expandMusicPlayer();
             }
