@@ -768,7 +768,7 @@
             transform: scale(1.1);
         }
         
-        .volume-slider {
+        .progress-slider {
             width: 100%;
             margin: 15px 0; /* 减小外边距 */
         }
@@ -860,11 +860,11 @@
             <button id="playPauseBtn"><i class="fas fa-play"></i></button>
             <button id="nextBtn"><i class="fas fa-step-forward"></i></button>
         </div>
-        <input type="range" min="0" max="100" value="80" class="volume-slider" id="volumeSlider">
+        <input type="range" min="0" max="100" value="80" class="progress-slider" id="progressSlider">
         <div class="track-list">
             <div class="track-item active" data-src="https://raw.githubusercontent.com/rkmoneunw/OneOnPlay/Eo8Z1j/MMFGR_Y.mp3" data-cover="https://raw.githubusercontent.com/rkmoneunw/OneOnPlay/Eo8Z1j/MMFGR_F.jpg">美梦抚归人</div>
             <div class="track-item" data-src="https://raw.githubusercontent.com/OneOnPlay/oneonplay/Eo8Z1j/PMCQX_Y.mp3" data-cover="https://raw.githubusercontent.com/rkmoneunw/OneOnPlay/Eo8Z1j/PMCQX_F.jpg">品茗尝清心</div>
-            <div class="track-item" data-src="https://raw.githubusercontent.com/rkmoneunw/OneOnPlay/Eo8Z1j/FZYCLMZ_Y.mp3" data-cover="https://raw.githubusercontent.com/rkmoneunw/OneOnPlay/Eo8Z1j/FZYCLMZ_F.jpg">风中易尘落茗中</div>
+            <div class="track-item" data-src="https://raw.githubusercontent.com/rkmoneunw/OneOnPlay/Eo8Z1j/FZYCLMZ_Y.mp3" data-cover="https://raw.githubusercontent.com/rkmoneunw/OneOnPlay/Eo8Z1j/FZYCLMZ_F.png">风中易尘落茗中</div>
             <div class="track-item" data-src="https://raw.githubusercontent.com/rkmoneunw/OneOnPlay/Eo8Z1j/YZYL_Y.mp3" data-cover="https://raw.githubusercontent.com/rkmoneunw/OneOnPlay/Eo8Z1j/YZYL_F.jpg">盐渍月亮</div>
         </div>
     </div>
@@ -1187,7 +1187,7 @@
         const playPauseBtn = document.getElementById('playPauseBtn');
         const prevBtn = document.getElementById('prevBtn');
         const nextBtn = document.getElementById('nextBtn');
-        const volumeSlider = document.getElementById('volumeSlider');
+        const progressSlider = document.getElementById('progressSlider');
         const trackItems = document.querySelectorAll('.track-item');
         
         let currentTrackIndex = 0;
@@ -1198,14 +1198,16 @@
         // 初始化音乐播放器
         function initMusicPlayer() {
             // 设置初始音量
-            audioPlayer.volume = volumeSlider.value / 100;
+            audioPlayer.volume = 0.8; // 固定音量80%
             
             // 加载第一首曲目
             loadTrack(currentTrackIndex);
             
             // 添加事件监听器
-            volumeSlider.addEventListener('input', () => {
-                audioPlayer.volume = volumeSlider.value / 100;
+            progressSlider.addEventListener('input', () => {
+                // 当用户拖动进度条时，改变音频的当前播放时间
+                const newTime = (progressSlider.value / 100) * audioPlayer.duration;
+                audioPlayer.currentTime = newTime;
             });
             
             playPauseBtn.addEventListener('click', togglePlayPause);
@@ -1219,6 +1221,15 @@
             });
             
             audioPlayer.addEventListener('ended', playNextTrack);
+            audioPlayer.addEventListener('timeupdate', updateProgress);
+        }
+        
+        // 更新进度条
+        function updateProgress() {
+            if (!isNaN(audioPlayer.duration)) {
+                const percent = (audioPlayer.currentTime / audioPlayer.duration) * 100;
+                progressSlider.value = percent;
+            }
         }
         
         // 加载曲目
