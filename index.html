@@ -25,6 +25,13 @@
             --font-size-base: 16px;
             --font-size-large: 1.25rem;
             --header-height: 70px;
+            --music-btn-bg: linear-gradient(135deg, #8E2DE2, #4A00E0);
+            --music-panel-bg: rgba(0, 0, 0, 0.7);
+            --music-panel-text: #ffffff;
+            --music-panel-border: rgba(255, 255, 255, 0.1);
+            --music-btn-border: rgba(255, 255, 255, 0.3);
+            --control-btn-bg: rgba(255, 255, 255, 0.2);
+            --control-btn-color: #ffffff;
         }
         
         [data-theme="light"] {
@@ -35,6 +42,13 @@
             --header-bg: rgba(255, 255, 255, 0.9);
             --card-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
             --title-gradient: linear-gradient(45deg, #7e22ce, #3b0764);
+            --music-btn-bg: linear-gradient(135deg, #ff7e5f, #feb47b);
+            --music-panel-bg: rgba(255, 255, 255, 0.85);
+            --music-panel-text: #333333;
+            --music-panel-border: rgba(0, 0, 0, 0.1);
+            --music-btn-border: rgba(0, 0, 0, 0.2);
+            --control-btn-bg: rgba(0, 0, 0, 0.1);
+            --control-btn-color: #333333;
         }
         
         [data-accessibility="senior"] {
@@ -47,6 +61,13 @@
             --title-gradient: linear-gradient(45deg, #ff0000, #0000ff);
             --font-size-base: 20px;
             --font-size-large: 1.5rem;
+            --music-btn-bg: linear-gradient(135deg, #ff0000, #0000ff);
+            --music-panel-bg: #f0f0f0;
+            --music-panel-text: #000000;
+            --music-panel-border: #000000;
+            --music-btn-border: #000000;
+            --control-btn-bg: rgba(0, 0, 0, 0.1);
+            --control-btn-color: #000000;
         }
         
         [data-accessibility="senior"][data-theme="dark"] {
@@ -56,6 +77,13 @@
             --text-secondary: #dddddd;
             --header-bg: #333333;
             --title-gradient: linear-gradient(45deg, #ff9900, #ffff00);
+            --music-btn-bg: linear-gradient(135deg, #ff9900, #ffff00);
+            --music-panel-bg: #222222;
+            --music-panel-text: #ffff00;
+            --music-panel-border: #ffff00;
+            --music-btn-border: #ffff00;
+            --control-btn-bg: rgba(255, 255, 0, 0.1);
+            --control-btn-color: #ffff00;
         }
         
         * {
@@ -73,6 +101,7 @@
             min-height: 100vh;
             position: relative;
             padding-top: var(--header-height);
+            overflow-x: hidden;
         }
         
         .container {
@@ -438,6 +467,18 @@
                 font-size: 0.8rem;
                 padding: 4px 8px;
             }
+            
+            .music-player-panel {
+                width: 90%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                top: 60%;
+            }
+            
+            .music-slide-area {
+                width: 80px;
+                height: 140px;
+            }
         }
         
         /* 天气按钮样式 */
@@ -546,9 +587,290 @@
             color: #ffff00;
             background: #0000ff;
         }
+        
+        /* 音乐播放器按钮样式 */
+        .music-player-btn {
+            position: fixed;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%) translateX(-60px);
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            background: var(--music-btn-bg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 99;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            transition: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            overflow: hidden;
+            border: 2px solid var(--music-btn-border);
+        }
+        
+        .music-player-btn.expanded {
+            transform: translateY(-50%) translateX(20px);
+        }
+        
+        .music-player-btn .player-icon {
+            position: relative;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 24px;
+            z-index: 2;
+            transition: transform 0.5s ease;
+        }
+        
+        .music-player-btn.expanded .player-icon {
+            transform: scale(1.2);
+        }
+        
+        .music-player-btn .album-cover {
+            position: absolute;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background-image: url('https://images.unsplash.com/photo-1470225620780-dba8ba36b745?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=500&q=80');
+            background-size: cover;
+            background-position: center;
+            z-index: 1;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+        
+        .music-player-btn.expanded .album-cover {
+            opacity: 1;
+            animation: spin 8s linear infinite;
+        }
+        
+        .music-player-btn .tooltip {
+            position: absolute;
+            top: -40px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            white-space: nowrap;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+            z-index: 100;
+        }
+        
+        .music-player-btn:hover .tooltip {
+            opacity: 1;
+        }
+        
+        .music-player-btn .collapsed-indicator {
+            position: absolute;
+            right: 5px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 10px;
+            height: 30px;
+            background: rgba(255, 255, 255, 0.7);
+            border-radius: 5px;
+            display: block;
+        }
+        
+        .music-player-btn.expanded .collapsed-indicator {
+            display: none;
+        }
+        
+        .music-player-btn.expanded .player-icon i {
+            color: #92fe9d;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* 滑动区域 - 大幅增大 */
+        .music-slide-area {
+            position: fixed;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 120px; /* 增大宽度 */
+            height: 180px; /* 增大高度 */
+            z-index: 98;
+            opacity: 0.1;
+            cursor: pointer;
+            background: rgba(0, 255, 0, 0.1); /* 调试用，实际可移除 */
+        }
+        
+        /* 音乐播放器面板 - 缩小尺寸 */
+        .music-player-panel {
+            position: fixed;
+            left: 100px; 
+            top: 50%;
+            transform: translateY(-50%);
+            background: var(--music-panel-bg);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 15px; /* 减小内边距 */
+            width: 260px; /* 缩小宽度 */
+            z-index: 98;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.5s ease;
+            color: var(--music-panel-text);
+            border: 2px solid var(--music-panel-border);
+        }
+        
+        .music-player-panel.visible {
+            opacity: 1;
+            pointer-events: all;
+        }
+        
+        .music-player-panel h3 {
+            margin-bottom: 12px;
+            color: #92fe9d;
+            text-align: center;
+            font-size: 1.3rem; /* 减小字体 */
+        }
+        
+        .player-controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px; /* 减小间距 */
+            margin: 15px 0; /* 减小外边距 */
+        }
+        
+        .player-controls button {
+            width: 50px; /* 减小按钮尺寸 */
+            height: 50px; /* 减小按钮尺寸 */
+            border-radius: 50%;
+            background: var(--control-btn-bg);
+            border: none;
+            color: var(--control-btn-color);
+            font-size: 1.2rem; /* 减小图标 */
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            border: 1px solid var(--music-panel-border);
+        }
+        
+        .player-controls button:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(1.1);
+        }
+        
+        .volume-slider {
+            width: 100%;
+            margin: 15px 0; /* 减小外边距 */
+        }
+        
+        .track-list {
+            max-height: 160px; /* 减小高度 */
+            overflow-y: auto;
+            margin-top: 10px; /* 减小外边距 */
+        }
+        
+        .track-item {
+            padding: 10px 12px; /* 减小内边距 */
+            border-radius: 5px;
+            margin-bottom: 6px; /* 减小外边距 */
+            cursor: pointer;
+            transition: background 0.3s ease;
+            font-size: var(--font-size-base); /* 使用基础字体大小 */
+        }
+        
+        .track-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+        
+        .track-item.active {
+            background: rgba(146, 254, 157, 0.2);
+            color: #92fe9d;
+            font-weight: bold;
+        }
+        
+        /* 老年模式下的音乐面板调整 */
+        [data-accessibility="senior"] .music-player-panel {
+            border: 3px solid var(--music-panel-border);
+        }
+        
+        [data-accessibility="senior"] .player-controls button {
+            border: 2px solid var(--music-panel-border);
+            background: rgba(255, 255, 255, 0.3);
+        }
+        
+        [data-accessibility="senior"] .track-item {
+            font-weight: bold;
+            padding: 12px;
+            border: 1px solid var(--music-panel-border);
+        }
+        
+        /* 长按提示弹窗 */
+        .long-press-tooltip {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.85);
+            color: white;
+            padding: 12px 24px; /* 减小尺寸 */
+            border-radius: 25px;
+            font-size: 1.1rem; /* 减小字体 */
+            z-index: 200;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+            min-width: 200px; /* 减小宽度 */
+            text-align: center;
+        }
+        
+        .long-press-tooltip.visible {
+            opacity: 1;
+        }
     </style>
 </head>
 <body>
+    <div class="long-press-tooltip" id="longPressTooltip">播放音乐</div>
+    
+    <div class="music-slide-area" id="musicSlideArea"></div>
+    
+    <div class="music-player-btn" id="musicPlayerBtn">
+        <div class="album-cover"></div>
+        <div class="player-icon">
+            <i class="fas fa-music"></i>
+        </div>
+        <div class="tooltip">播放音乐</div>
+        <div class="collapsed-indicator"></div>
+    </div>
+    
+    <div class="music-player-panel" id="musicPlayerPanel">
+        <h3>音乐播放器</h3>
+        <div class="player-controls">
+            <button id="prevBtn"><i class="fas fa-step-backward"></i></button>
+            <button id="playPauseBtn"><i class="fas fa-play"></i></button>
+            <button id="nextBtn"><i class="fas fa-step-forward"></i></button>
+        </div>
+        <input type="range" min="0" max="100" value="80" class="volume-slider" id="volumeSlider">
+        <div class="track-list">
+            <div class="track-item active" data-src="https://raw.githubusercontent.com/rkmoneunw/oneonplay/main/Eo8Z1零j/美梦抚归人_音乐.mp3" data-cover="https://raw.githubusercontent.com/rkmoneunw/oneonplay/main/Eo8Z1零j/美梦抚归人_封面.jpg">美梦抚归人</div>
+            <div class="track-item" data-src="https://raw.githubusercontent.com/rkmoneunw/oneonplay/main/Eo8Z1零j/品茗尝清心_音乐.mp3" data-cover="https://raw.githubusercontent.com/rkmoneunw/oneonplay/main/Eo8Z1零j/品茗尝清心_封面.jpg">品茗尝清心</div>
+            <div class="track-item" data-src="https://raw.githubusercontent.com/rkmoneunw/oneonplay/main/Eo8Z1零j/风中易尘落茗中_音乐.mp3" data-cover="https://raw.githubusercontent.com/rkmoneunw/oneonplay/main/Eo8Z1零j/风中易尘落茗中_封面.jpg">风中易尘落茗中</div>
+            <div class="track-item" data-src="https://raw.githubusercontent.com/rkmoneunw/oneonplay/main/Eo8Z1零j/盐渍月亮_音乐.mp3" data-cover="https://raw.githubusercontent.com/rkmoneunw/oneonplay/main/Eo8Z1零j/盐渍月亮_封面.jpg">盐渍月亮</div>
+        </div>
+    </div>
+    
+    <audio id="audioPlayer" style="display: none;"></audio>
+    
     <header>
         <div class="header-container">
             <div class="logo-container">
@@ -614,7 +936,6 @@
         <h2 class="section-title">更多内容</h2>
         
         <div class="content">
-            <!-- 卡片1 -->
             <a href="https://1drv.ms/f/c/a44695ea4224aa39/Ehet8PffxwtOoFPoCq1qNa8BnqAVaUck_CNUuKbCogxDpQ" class="card">
                 <div class="card-img">
                     <div class="card-img-placeholder">1drv.ms</div>
@@ -626,7 +947,6 @@
                 </div>
             </a>
             
-            <!-- 卡片2 -->
             <a href="https://remobax.top/compatibility_guide/" class="card">
                 <div class="card-img">
                     <div class="card-img-placeholder">remchax.top</div>
@@ -637,7 +957,6 @@
                 </div>
             </a>
             
-            <!-- 卡片3 -->
             <a href="https://www.mihoyo.com/m" class="card">
                 <div class="card-img">
                     <div class="card-img-placeholder">mihoyo⁰³</div>
@@ -669,7 +988,6 @@
         </div>
     </footer>
     
-    <!-- 天气按钮 -->
     <div class="weather-btn" id="weatherBtn">
         <div class="shape" id="weatherShape">
             <i class="fas fa-cloud"></i>
@@ -684,6 +1002,7 @@
         const seniorModeToggle = document.getElementById('seniorModeToggle');
         const seniorIcon = seniorModeToggle.querySelector('i');
         const body = document.body;
+        const longPressTooltip = document.getElementById('longPressTooltip');
         
         // 检查本地存储中的主题偏好
         const savedTheme = localStorage.getItem('theme');
@@ -860,6 +1179,174 @@
             }
         }
         
+        // 音乐播放器功能
+        const musicPlayerBtn = document.getElementById('musicPlayerBtn');
+        const musicPlayerPanel = document.getElementById('musicPlayerPanel');
+        const musicSlideArea = document.getElementById('musicSlideArea');
+        const audioPlayer = document.getElementById('audioPlayer');
+        const playPauseBtn = document.getElementById('playPauseBtn');
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        const volumeSlider = document.getElementById('volumeSlider');
+        const trackItems = document.querySelectorAll('.track-item');
+        
+        let currentTrackIndex = 0;
+        let isPlaying = false;
+        let longPressTimer;
+        let slideTimeout;
+        
+        // 初始化音乐播放器
+        function initMusicPlayer() {
+            // 设置初始音量
+            audioPlayer.volume = volumeSlider.value / 100;
+            
+            // 加载第一首曲目
+            loadTrack(currentTrackIndex);
+            
+            // 添加事件监听器
+            volumeSlider.addEventListener('input', () => {
+                audioPlayer.volume = volumeSlider.value / 100;
+            });
+            
+            playPauseBtn.addEventListener('click', togglePlayPause);
+            prevBtn.addEventListener('click', playPrevTrack);
+            nextBtn.addEventListener('click', playNextTrack);
+            
+            trackItems.forEach((item, index) => {
+                item.addEventListener('click', () => {
+                    playTrack(index);
+                });
+            });
+            
+            audioPlayer.addEventListener('ended', playNextTrack);
+        }
+        
+        // 加载曲目
+        function loadTrack(index) {
+            const trackItem = trackItems[index]; 
+            const trackSrc = trackItem.getAttribute('data-src');
+            const coverSrc = trackItem.getAttribute('data-cover'); 
+            
+            audioPlayer.src = trackSrc;
+            
+            trackItems.forEach(item => item.classList.remove('active'));
+            trackItem.classList.add('active');
+            
+            const albumCover = document.querySelector('.album-cover');
+            if (coverSrc) { 
+                albumCover.style.backgroundImage = `url('${coverSrc}')`;
+            } else { 
+                albumCover.style.backgroundImage = `url('https://picsum.photos/200/200?random=${index}')`;
+            }
+        }
+        
+        // 播放/暂停
+        function togglePlayPause() {
+            if (isPlaying) {
+                audioPlayer.pause();
+                playPauseBtn.innerHTML = '<i class="fas fa-play"></i>';
+            } else {
+                audioPlayer.play().catch(e => console.log("播放失败:", e));
+                playPauseBtn.innerHTML = '<i class="fas fa-pause"></i>';
+            }
+            isPlaying = !isPlaying;
+        }
+        
+        // 播放指定曲目
+        function playTrack(index) {
+            currentTrackIndex = index;
+            loadTrack(currentTrackIndex);
+            isPlaying = true;
+            audioPlayer.play().catch(e => console.log("播放失败:", e));
+            playPauseBtn.innerHTML = '<i class="fas fa-pause"></i>';
+        }
+        
+        // 播放上一曲
+        function playPrevTrack() {
+            currentTrackIndex = (currentTrackIndex - 1 + trackItems.length) % trackItems.length;
+            playTrack(currentTrackIndex);
+        }
+        
+        // 播放下一曲
+        function playNextTrack() {
+            currentTrackIndex = (currentTrackIndex + 1) % trackItems.length;
+            playTrack(currentTrackIndex);
+        }
+        
+        // 展开音乐播放器
+        function expandMusicPlayer() {
+            if (musicPlayerBtn.classList.contains('expanded')) return;
+            
+            musicPlayerBtn.classList.add('expanded');
+            musicPlayerPanel.classList.add('visible');
+        }
+        
+        // 滑动区域事件 - 大幅改进滑动唤出功能
+        musicSlideArea.addEventListener('mouseenter', () => {
+            slideTimeout = setTimeout(() => {
+                expandMusicPlayer();
+            }, 200); // 更短的延迟
+        });
+        
+        musicSlideArea.addEventListener('mouseleave', () => {
+            clearTimeout(slideTimeout);
+        });
+        
+        // 添加触摸事件支持
+        musicSlideArea.addEventListener('touchstart', () => {
+            slideTimeout = setTimeout(() => {
+                expandMusicPlayer();
+            }, 300);
+        });
+        
+        musicSlideArea.addEventListener('touchend', () => {
+            clearTimeout(slideTimeout);
+        });
+        
+        // 音乐按钮点击事件
+        musicPlayerBtn.addEventListener('click', () => {
+            if (musicPlayerBtn.classList.contains('expanded')) {
+                musicPlayerBtn.classList.remove('expanded');
+                musicPlayerPanel.classList.remove('visible');
+            } else {
+                expandMusicPlayer();
+            }
+        });
+        
+        // 音乐按钮长按事件
+        musicPlayerBtn.addEventListener('mousedown', () => {
+            longPressTimer = setTimeout(() => {
+                showLongPressTooltip();
+            }, 800); // 更短的延迟
+        });
+        
+        musicPlayerBtn.addEventListener('mouseup', () => {
+            clearTimeout(longPressTimer);
+        });
+        
+        musicPlayerBtn.addEventListener('mouseleave', () => {
+            clearTimeout(longPressTimer);
+        });
+        
+        // 添加触摸事件支持
+        musicPlayerBtn.addEventListener('touchstart', () => {
+            longPressTimer = setTimeout(() => {
+                showLongPressTooltip();
+            }, 800);
+        });
+        
+        musicPlayerBtn.addEventListener('touchend', () => {
+            clearTimeout(longPressTimer);
+        });
+        
+        // 显示长按提示
+        function showLongPressTooltip() {
+            longPressTooltip.classList.add('visible');
+            setTimeout(() => {
+                longPressTooltip.classList.remove('visible');
+            }, 1500); // 更短的显示时间
+        }
+        
         // 初始化
         document.addEventListener('DOMContentLoaded', async () => {
             // 获取并显示天气信息
@@ -876,6 +1363,9 @@
             
             const currentMode = body.getAttribute('data-accessibility') || 'normal';
             updateSeniorIcon(currentMode);
+            
+            // 初始化音乐播放器
+            initMusicPlayer();
         });
     </script>
 </body>
